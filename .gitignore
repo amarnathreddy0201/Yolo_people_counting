@@ -1,0 +1,6 @@
+__pycache__
+uploads
+
+tracker/__pycache__
+
+yolov8s.pt

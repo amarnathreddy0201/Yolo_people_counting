@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Video Streamer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f4f4f4;
+        }
+        
+        h1 {
+            margin-top: 30px;
+        }
+        
+        video,
+        img {
+            width: 640px;
+            height: 480px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            width: 700px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
+        
+        input[type="file"],
+        input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            margin-top: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🎥 FastAPI Video Streamer</h1>
+
+    <div class="section">
+        <h2>1️⃣ Live Webcam</h2>
+        <button onclick="startWebcam()">Start Webcam</button>
+        <div><img id="webcam" src="" alt=""></div>
+    </div>
+
+    <div class="section">
+        <h2>2️⃣ Upload Video</h2>
+        <form id="uploadForm">
+            <input type="file" id="videoFile" name="file" accept="video/*" required><br>
+            <button type="submit">Upload & Play</button>
+        </form>
+        <div><img id="uploaded" src="" alt=""></div>
+    </div>
+
+    <div class="section">
+        <h2>3️⃣ RTSP / IP Camera</h2>
+        <input type="text" id="rtspUrl" placeholder="rtsp://username:password@ip:port/stream"><br>
+        <button onclick="startRtsp()">Start RTSP Stream</button>
+        <div><img id="rtsp" src="" alt=""></div>
+    </div>
+
+    <script>
+        function startWebcam() {
+            document.getElementById("webcam").src = "/webcam_feed";
+        }
+
+        document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById("videoFile");
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            const res = await fetch("/upload_video", {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            if (data.filename) {
+                document.getElementById("uploaded").src = "/play_video?filename=" + data.filename;
+            }
+        });
+
+        async function startRtsp() {
+            const url = document.getElementById("rtspUrl").value;
+            const formData = new FormData();
+            formData.append("rtsp_url", url);
+            const response = await fetch("/rtsp_stream", {
+                method: "POST",
+                body: formData
+            });
+            const blob = await response.blob();
+            const streamUrl = URL.createObjectURL(blob);
+            document.getElementById("rtsp").src = "/rtsp_stream?rtsp_url=" + encodeURIComponent(url);
+        }
+    </script>
+</body>
+
+</html>
