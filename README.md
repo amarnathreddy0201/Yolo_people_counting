@@ -12,6 +12,6 @@
 
     - Command : pip install -r requirements.txt
 
-- Run the application:
+- Run the application with below command:
 
-    - uvicorn main:app
+    - uvicorn main4:app
